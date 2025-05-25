@@ -12,18 +12,10 @@ RUN apk update && apk add --no-cache \
     curl \
     oniguruma-dev \
     libxml2-dev \
-    php82-zip \
-    php82-mbstring \
-    php82-pdo \
-    php82-pdo_mysql \
-    php82-tokenizer \
-    php82-xml \
-    php82-phar \
-    php82-dom \
-    php82-fileinfo \
-    php82-session \
+    libzip-dev \
     && docker-php-ext-configure gd --with-freetype --with-jpeg \
     && docker-php-ext-install gd zip mbstring pdo pdo_mysql tokenizer xml phar dom fileinfo session
+
 
 # Symlink GD config agar bisa digunakan CLI (php artisan)
 RUN mkdir -p /usr/local/etc/php/conf.d/ && \
