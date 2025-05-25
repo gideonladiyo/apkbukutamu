@@ -5,18 +5,9 @@ FROM php:8.2-fpm-alpine
 WORKDIR /var/www/html
 
 # Instal dependensi sistem yang dibutuhkan Laravel
-RUN apk update && apk add --no-cache \
-    build-base shadow curl \
-    freetype-dev \
-    libpng-dev \
-    libjpeg-turbo-dev \
-    php82-gd \
-    php82-exif php82-pcntl php82-bcmath php82-opcache \
-    php82-zip php82-tokenizer php82-xml php82-xmlwriter \
-    php82-pdo php82-pdo_mysql php82-mysqli php82-mysqlnd \
-    php82-dom php82-session php82-ctype php82-fileinfo \
-    php82-mbstring php82-curl php82-openssl php82-json \
-    supervisor nginx
+# Install ekstensi PHP dari source menggunakan docker-php-ext-install
+RUN docker-php-ext-configure gd --with-freetype --with-jpeg \
+    && docker-php-ext-install gd pdo pdo_mysql mysqli
 
 # Tambahan: Pastikan file konfigurasi GD dibaca oleh PHP CLI
 # PHP CLI pada image ini memindai /usr/local/etc/php/conf.d/
@@ -32,28 +23,6 @@ RUN mkdir -p /usr/local/etc/php/conf.d/ && \
     else \
     echo "WARNING: GD .ini file not found in /etc/php82/conf.d/"; \
     fi
-
-# Diagnostik (bisa Anda hapus setelah masalah teratasi)
-RUN set -x && \
-    echo "============================================================" && \
-    echo "DIAGNOSTIC BLOCK START (POST-SYMLINK)" && \
-    echo "============================================================" && \
-    echo " " && \
-    echo "--- 1. PHP Version ---" && \
-    php -v && \
-    echo " " && \
-    echo "--- 2. Checking PHP modules (php -m) ---" && \
-    php -m && \
-    echo " " && \
-    echo "--- 3. Grepping for GD in PHP modules ---" && \
-    (php -m | grep -i gd && echo "SUCCESS: GD found by 'php -m | grep -i gd'") || echo "FAILURE: GD *NOT* found by 'php -m | grep -i gd'" && \
-    echo " " && \
-    echo "--- 4. Checking php.ini files loaded by CLI (php --ini) ---" && \
-    php --ini && \
-    echo " " && \
-    echo "============================================================" && \
-    echo "DIAGNOSTIC BLOCK END (POST-SYMLINK)" && \
-    echo "============================================================"
 
 # Instal Composer secara global
 COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
