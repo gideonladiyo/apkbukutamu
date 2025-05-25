@@ -1,56 +1,49 @@
 version: '3.8'
 
 services:
-  # Layanan Aplikasi Laravel
   app:
     build:
-      context: . # Path ke Dockerfile Anda
+      context: .
       dockerfile: Dockerfile
-    image: ipul/apkbukutamu # Ganti dengan nama image Anda
+    image: ipul/apkbukutamu
     container_name: laravel_app
     restart: unless-stopped
     tty: true
-    environment:
-      # Variabel lingkungan akan diambil dari file .env di VM
-      SERVICE_NAME: app
-      SERVICE_TAGS: dev
     working_dir: /var/www/html
     volumes:
-      - ./:/var/www/html # Untuk development, sinkronisasi kode
-      # Untuk produksi, Anda mungkin tidak mau mount source code langsung
-      # - ./storage:/var/www/html/storage # Pastikan permission
-      # - ./bootstrap/cache:/var/www/html/bootstrap/cache # Pastikan permission
+      - ./:/var/www/html
     ports:
-      - "8000:80" # Map port 8000 di host ke port 80 di container
+      - "8000:80"
     networks:
       - laravelnet
     depends_on:
       - db
+    environment:
+      DB_HOST: db
+      DB_PORT: 3306
+      DB_DATABASE: ${DB_DATABASE:-laravel}
+      DB_USERNAME: ${DB_DATABASE:-laravel}
+      DB_PASSWORD:  ${DB_PASSWORD:-password}
 
-  # Layanan Database MySQL
   db:
     image: mysql:8.0
     container_name: mysql_db
     restart: unless-stopped
-    tty: true
     ports:
-      - "33061:3306" # Map port 33061 di host ke port 3306 di container (opsional, untuk akses eksternal jika perlu)
+      - "33061:3306"
     environment:
       MYSQL_DATABASE: ${DB_DATABASE:-laravel}
-      MYSQL_USER: ${DB_USERNAME:-user}
+      MYSQL_USER: ${DB_DATABASE:-laravel}
       MYSQL_PASSWORD: ${DB_PASSWORD:-password}
       MYSQL_ROOT_PASSWORD: ${DB_ROOT_PASSWORD:-secret}
     volumes:
-      - dbdata:/var/lib/mysql # Volume untuk persistensi data MySQL
+      - dbdata:/var/lib/mysql
     networks:
       - laravelnet
 
-# Jaringan Docker
 networks:
   laravelnet:
     driver: bridge
 
-# Volume Docker untuk persistensi data MySQL
 volumes:
   dbdata:
-    driver: local
