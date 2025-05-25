@@ -4,14 +4,16 @@ FROM php:8.2-fpm-alpine
 WORKDIR /var/www/html
 
 RUN apk update && apk add --no-cache \
-    build-base shadow curl \
-    freetype-dev libpng-dev libjpeg-turbo-dev \
-    php82-gd php82-exif php82-pcntl php82-bcmath php82-opcache \
-    php82-zip php82-tokenizer php82-xml php82-xmlwriter \
-    php82-pdo php82-pdo_mysql php82-mysqli php82-mysqlnd \
-    php82-dom php82-session php82-ctype php82-fileinfo \
-    php82-mbstring php82-curl php82-openssl php82-json \
-    supervisor nginx
+    libpng-dev \
+    libjpeg-turbo-dev \
+    freetype-dev \
+    zip \
+    unzip \
+    curl \
+    oniguruma-dev \
+    libxml2-dev \
+    && docker-php-ext-configure gd --with-freetype --with-jpeg \
+    && docker-php-ext-install gd
 
 # Symlink GD config agar bisa digunakan CLI (php artisan)
 RUN mkdir -p /usr/local/etc/php/conf.d/ && \
