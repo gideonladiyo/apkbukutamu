@@ -16,6 +16,8 @@ RUN apt-get update && apt-get install -y \
     libzip-dev \
     && docker-php-ext-install pdo_mysql mbstring exif pcntl bcmath gd zip
 
+RUN a2enmod headers
+
 # Install Composer
 COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
 
