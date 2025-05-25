@@ -7,6 +7,7 @@ WORKDIR /var/www/html
 # Instal dependensi sistem yang dibutuhkan Laravel
 RUN apk update && apk add --no-cache \
     build-base shadow curl \
+    php82-gd \
     php82-gd php82-exif php82-pcntl php82-bcmath php82-opcache \
     php82-zip php82-tokenizer php82-xml php82-xmlwriter \
     php82-pdo php82-pdo_mysql php82-mysqli php82-mysqlnd \
