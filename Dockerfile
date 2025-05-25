@@ -8,7 +8,7 @@ WORKDIR /var/www/html
 # Pastikan freetype dan libpng diinstal SEBELUM php82-gd untuk dependensi GD yang lengkap
 RUN apk update && apk add --no-cache \
     build-base shadow curl \
-    freetype-dev \ 
+    freetype-dev \
     libpng-dev \
     libjpeg-turbo-dev \
     php82-gd \
@@ -18,6 +18,14 @@ RUN apk update && apk add --no-cache \
     php82-dom php82-session php82-ctype php82-fileinfo \
     php82-mbstring php82-curl php82-openssl php82-json \
     supervisor nginx
+
+# Diagnostik: Cek apakah ekstensi GD terdeteksi oleh PHP CLI
+RUN echo "--- Checking PHP modules (php -m) ---" && \
+    php -m && \
+    echo "--- Grepping for GD ---" && \
+    (php -m | grep -i gd && echo "GD found by php -m") || echo "GD *NOT* found by php -m"
+RUN echo "--- Checking php.ini files being loaded by CLI ---" && \
+    php --ini
 
 # Instal Composer secara global
 COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
