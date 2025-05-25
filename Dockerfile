@@ -10,7 +10,7 @@ RUN apk update && apk add --no-cache \
     freetype-dev \
     libpng-dev \
     libjpeg-turbo-dev \
-    php82-gd \
+    php82-gd \ 
     php82-exif php82-pcntl php82-bcmath php82-opcache \
     php82-zip php82-tokenizer php82-xml php82-xmlwriter \
     php82-pdo php82-pdo_mysql php82-mysqli php82-mysqlnd \
@@ -18,10 +18,25 @@ RUN apk update && apk add --no-cache \
     php82-mbstring php82-curl php82-openssl php82-json \
     supervisor nginx
 
-# Diagnostik yang lebih jelas
+# Tambahan: Pastikan file konfigurasi GD dibaca oleh PHP CLI
+# PHP CLI pada image ini memindai /usr/local/etc/php/conf.d/
+# Paket php82-gd menempatkan konfigurasinya di /etc/php82/conf.d/00_gd.ini
+# Kita buat symlink atau copy file tersebut. Symlink lebih baik.
+RUN mkdir -p /usr/local/etc/php/conf.d/ && \
+    if [ -f /etc/php82/conf.d/00_gd.ini ]; then \
+    ln -s /etc/php82/conf.d/00_gd.ini /usr/local/etc/php/conf.d/zz_gd.ini; \
+    echo "Symlinked 00_gd.ini"; \
+    elif [ -f /etc/php82/conf.d/gd.ini ]; then \
+    ln -s /etc/php82/conf.d/gd.ini /usr/local/etc/php/conf.d/zz_gd.ini; \
+    echo "Symlinked gd.ini"; \
+    else \
+    echo "WARNING: GD .ini file not found in /etc/php82/conf.d/"; \
+    fi
+
+# Diagnostik (bisa Anda hapus setelah masalah teratasi)
 RUN set -x && \
     echo "============================================================" && \
-    echo "DIAGNOSTIC BLOCK START" && \
+    echo "DIAGNOSTIC BLOCK START (POST-SYMLINK)" && \
     echo "============================================================" && \
     echo " " && \
     echo "--- 1. PHP Version ---" && \
@@ -36,14 +51,8 @@ RUN set -x && \
     echo "--- 4. Checking php.ini files loaded by CLI (php --ini) ---" && \
     php --ini && \
     echo " " && \
-    echo "--- 5. Looking for gd.ini files specifically ---" && \
-    (find /etc/php* -name "*gd.ini*" -print && echo "SUCCESS: Found potential gd.ini files above") || echo "FAILURE: No gd.ini files found in /etc/php* with 'find'" && \
-    echo " " && \
-    echo "--- 6. Checking loaded .ini files for GD section (slow, might be large output) ---" && \
-    php -r 'foreach (php_ini_scanned_files() as $file) { if (strpos(file_get_contents($file), "[gd]") !== false) { echo "SUCCESS: [gd] section found in $file\n"; } }' || echo "INFO: No [gd] section found in scanned ini files via php -r" && \
-    echo " " && \
     echo "============================================================" && \
-    echo "DIAGNOSTIC BLOCK END" && \
+    echo "DIAGNOSTIC BLOCK END (POST-SYMLINK)" && \
     echo "============================================================"
 
 # Instal Composer secara global
