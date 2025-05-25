@@ -1,42 +1,47 @@
-# Dockerfile
-FROM php:8.2-fpm-alpine
+# Use PHP 8.2 with Apache
+FROM php:8.2-apache
 
+# Set working directory
 WORKDIR /var/www/html
 
-RUN apk update && apk add --no-cache \
+# Install system dependencies
+RUN apt-get update && apt-get install -y \
+    git \
+    curl \
     libpng-dev \
-    libjpeg-turbo-dev \
-    freetype-dev \
+    libonig-dev \
+    libxml2-dev \
     zip \
     unzip \
-    curl \
-    oniguruma-dev \
-    libxml2-dev \
     libzip-dev \
-    && docker-php-ext-configure gd --with-freetype --with-jpeg \
-    && docker-php-ext-install gd zip mbstring pdo pdo_mysql tokenizer xml phar dom fileinfo session
+    && docker-php-ext-install pdo_mysql mbstring exif pcntl bcmath gd zip
 
-
-# Symlink GD config agar bisa digunakan CLI (php artisan)
-RUN mkdir -p /usr/local/etc/php/conf.d/ && \
-    ln -s /etc/php82/conf.d/00_gd.ini /usr/local/etc/php/conf.d/zz_gd.ini || true
-
+# Install Composer
 COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
 
-COPY . .
+# Enable Apache mod_rewrite
+RUN a2enmod rewrite
 
-COPY docker/nginx.conf /etc/nginx/http.d/default.conf
-COPY docker/supervisord.conf /etc/supervisor/conf.d/supervisord.conf
+# Copy Apache virtual host configuration
+COPY ./docker/apache/000-default.conf /etc/apache2/sites-available/000-default.conf
 
-RUN chown -R www-data:www-data /var/www/html/storage /var/www/html/bootstrap/cache \
-    && chmod -R 775 /var/www/html/storage /var/www/html/bootstrap/cache
+# Copy application code
+COPY . /var/www/html
 
-RUN composer install --optimize-autoloader --no-dev --no-interaction
+# Set proper permissions
+RUN chown -R www-data:www-data /var/www/html \
+    && chmod -R 755 /var/www/html/storage \
+    && chmod -R 755 /var/www/html/bootstrap/cache
 
-RUN php artisan config:cache && \
-    php artisan route:cache && \
-    php artisan view:cache
+# Install PHP dependencies
+RUN composer install --no-dev --optimize-autoloader
 
+# Generate application key if .env doesn't exist
+RUN if [ ! -f .env ]; then cp .env.example .env; fi
+RUN php artisan key:generate
+
+# Expose port 80
 EXPOSE 80
 
-CMD ["/usr/bin/supervisord", "-c", "/etc/supervisor/conf.d/supervisord.conf"]
+# Start Apache
+CMD ["apache2-foreground"]
