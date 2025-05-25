@@ -5,7 +5,6 @@ FROM php:8.2-fpm-alpine
 WORKDIR /var/www/html
 
 # Instal dependensi sistem yang dibutuhkan Laravel
-# Pastikan freetype dan libpng diinstal SEBELUM php82-gd untuk dependensi GD yang lengkap
 RUN apk update && apk add --no-cache \
     build-base shadow curl \
     freetype-dev \
@@ -19,13 +18,33 @@ RUN apk update && apk add --no-cache \
     php82-mbstring php82-curl php82-openssl php82-json \
     supervisor nginx
 
-# Diagnostik: Cek apakah ekstensi GD terdeteksi oleh PHP CLI
-RUN echo "--- Checking PHP modules (php -m) ---" && \
+# Diagnostik yang lebih jelas
+RUN set -x && \
+    echo "============================================================" && \
+    echo "DIAGNOSTIC BLOCK START" && \
+    echo "============================================================" && \
+    echo " " && \
+    echo "--- 1. PHP Version ---" && \
+    php -v && \
+    echo " " && \
+    echo "--- 2. Checking PHP modules (php -m) ---" && \
     php -m && \
-    echo "--- Grepping for GD ---" && \
-    (php -m | grep -i gd && echo "GD found by php -m") || echo "GD *NOT* found by php -m"
-RUN echo "--- Checking php.ini files being loaded by CLI ---" && \
-    php --ini
+    echo " " && \
+    echo "--- 3. Grepping for GD in PHP modules ---" && \
+    (php -m | grep -i gd && echo "SUCCESS: GD found by 'php -m | grep -i gd'") || echo "FAILURE: GD *NOT* found by 'php -m | grep -i gd'" && \
+    echo " " && \
+    echo "--- 4. Checking php.ini files loaded by CLI (php --ini) ---" && \
+    php --ini && \
+    echo " " && \
+    echo "--- 5. Looking for gd.ini files specifically ---" && \
+    (find /etc/php* -name "*gd.ini*" -print && echo "SUCCESS: Found potential gd.ini files above") || echo "FAILURE: No gd.ini files found in /etc/php* with 'find'" && \
+    echo " " && \
+    echo "--- 6. Checking loaded .ini files for GD section (slow, might be large output) ---" && \
+    php -r 'foreach (php_ini_scanned_files() as $file) { if (strpos(file_get_contents($file), "[gd]") !== false) { echo "SUCCESS: [gd] section found in $file\n"; } }' || echo "INFO: No [gd] section found in scanned ini files via php -r" && \
+    echo " " && \
+    echo "============================================================" && \
+    echo "DIAGNOSTIC BLOCK END" && \
+    echo "============================================================"
 
 # Instal Composer secara global
 COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
