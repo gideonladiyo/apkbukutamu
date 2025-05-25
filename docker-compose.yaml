@@ -6,7 +6,7 @@ services:
     build:
       context: . # Path ke Dockerfile Anda
       dockerfile: Dockerfile
-    image: namaanda/laravel-app # Ganti dengan nama image Anda
+    image: ipul/apkbukutamu # Ganti dengan nama image Anda
     container_name: laravel_app
     restart: unless-stopped
     tty: true
