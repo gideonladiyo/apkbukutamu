@@ -46,7 +46,7 @@ echo "🗄️ Running database migrations..."
 docker-compose exec app php artisan migrate --force
 
 # Seed database (uncomment if you have seeders)
-# docker-compose exec app php artisan db:seed --force
+docker-compose exec app php artisan db:seed --force
 
 # Clear and cache configurations
 echo "🧹 Clearing and caching configurations..."
