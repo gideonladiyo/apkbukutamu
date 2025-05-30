@@ -36,10 +36,10 @@ Route::get('/reservasi', [ReservasiController::class, 'index'])->name('reservasi
 Route::get('/reservasi/store', [ReservasiController::class, 'store'])->name('reservasi.store');
 Route::get('/reservasi/data', [ReservasiController::class, 'data'])->name('reservasi.data');
 Route::get('/reservasi/all-data', [ReservasiController::class, 'allData'])->name('reservasi.allData');
-
+Route::get('/', [TamuController::class, 'index']);
 
 Route::group(['middleware' => ['auth']], function () {
-    Route::get('/', [TamuController::class, 'index']);
+    
     Route::get('/admin', [HomeController::class, 'index'])->name('home');
     Route::get('/useradmin', [UserController::class, 'indexAdmin'])->name('useradmin');
     Route::get('/userpetugas', [UserController::class, 'indexPetugas'])->name('userpetugas');

@@ -20,9 +20,19 @@ class TamuController extends Controller
      */
     public function index()
 {
-    // Jika user login dan rolenya ADMIN, redirect ke halaman admin
-    if (Auth::check() && Auth::user()->role == "ADMIN") {
-        return redirect("/admin");
+    if (Auth::check()) {
+        $role = Auth::user()->role;
+
+        // Jika role ADMIN atau PETUGAS, redirect ke /admin
+        if ($role === 'ADMIN') {
+            return redirect('/admin');
+        }
+
+        // Jika user login tapi bukan ADMIN atau PETUGAS (misal: tamu biasa)
+        // tetap lanjut ke halaman welcome seperti biasa
+    } else {
+        // Jika belum login sama sekali (guest), redirect ke /reservasi
+        return redirect()->route('reservasi.index');
     }
 
     // Ambil data pegawai
@@ -31,8 +41,10 @@ class TamuController extends Controller
     // Ambil data reservasi yang belum disetujui
     $reservasi = Reservasi::where("is_accepted", false)->get();
 
+    // Tampilkan halaman welcome
     return view('welcome', compact('reservasi', 'pegawai'));
 }
+
 
     public function data()
     {
