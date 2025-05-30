@@ -29,7 +29,7 @@
             <div class="page-brand" style="background-color: #f8f8f9;display: flex; justify-content: center;">
                 <a class="link" href="{{ route('home') }}">
                     <span class="w-full flex justify-center items-center">
-                        <img src="/assets/img/logo-lakoni.png" style="width: 40px;" alt="logo">
+                        <img src="{{ asset('assets/img/e-lakoni.png') }}" style="width: 40px;" alt="logo">
                         <span class=""><b>{{ config('app.name') }}</b></span>
                     </span>
                 </a>

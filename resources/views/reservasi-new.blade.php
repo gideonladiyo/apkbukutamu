@@ -17,8 +17,8 @@
     <div class="max-w-[1200px] w-full flex justify-between items-center py-5 px-5">
         <!-- Logo BPS dan Nama -->
         <div class="flex items-center gap-3">
-            <img src="/assets/img/BerAKHLAK.png" alt="Logo BerAKHLAK" class="w-auto h-[40px]">
-            <img src="/tamu/img/Logo_BPS.png" alt="Logo BPS" class="w-auto h-[40px] mx-2">
+            <img src="{{ asset('assets/img/BerAKHLAK.png') }}" alt="Logo BerAKHLAK" class="w-auto h-[40px]">
+            <img src="{{ asset('tamu/img/Logo_BPS.png') }}" alt="Logo BPS" class="w-auto h-[40px] mx-2">
             <span class="text-white font-bold text-lg ml-2">
                 BPS Kabupaten Pamekasan
             </span>
@@ -78,7 +78,7 @@
                     <a class="text-white text-xl py-3 px-5 bg-[#043277] w-fit font-bold rounded-full"
                         href="#formReservasi">Reservasi</a>
                 </div>
-                <img class="w-5/12 h-auto" src="/assets/img/e-lakoni.png" alt="Illustration">
+                <img class="w-5/12 h-auto" src="{{ asset('assets/img/e-lakoni.png') }}" alt="Illustration">
             </div>
         </section>
         <section class="w-full flex justify-center bg-[#043277]">

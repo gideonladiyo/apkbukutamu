@@ -47,7 +47,7 @@
                                 <div class="card-body p-md-5 mx-md-4">
 
                                     <div class="text-center">
-                                        <img class="mb-3" src="/assets/img/e-lakoni.png" style="width: 100px;"
+                                        <img class="mb-3" src="{{ asset('assets/img/e-lakoni.png') }}" style="width: 100px;"
                                             alt="logo">
                                     </div>
 
